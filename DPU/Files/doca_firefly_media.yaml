@@ -1,0 +1,72 @@
+#
+# Copyright (c) 2021-2022 NVIDIA CORPORATION & AFFILIATES, ALL RIGHTS RESERVED.
+#
+# This software product is a proprietary product of NVIDIA CORPORATION &
+# AFFILIATES (the "Company") and all right, title, and interest in and to the
+# software product, including all associated intellectual property rights, are
+# and shall remain exclusively with the Company.
+#
+# This software product is governed by the End User License Agreement
+# provided with the software product.
+#
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: doca-firefly
+spec:
+  restartPolicy: Always
+  hostNetwork: true
+  volumes:
+    - name: logs-firefly-volume
+      hostPath:
+        path: /var/log/doca/firefly
+        type: DirectoryOrCreate
+    - name: conf-firefly-volume
+      hostPath:
+        path: /etc/firefly
+        type: DirectoryOrCreate
+  containers:
+    - name: doca-firefly
+      image: nvcr.io/nvidia/doca/doca_firefly:1.0.0-doca1.5.0
+      imagePullPolicy: IfNotPresent
+      securityContext:
+        # Current limitation of standalone-mode
+        privileged: true
+      volumeMounts:
+      - name: logs-firefly-volume
+        mountPath: /var/log/firefly
+      - name: conf-firefly-volume
+        mountPath: /etc/firefly
+      env:
+        - name: PROFILE
+          # Profile options are: default, media
+          value: media
+          # Set interface according to the local setup
+        - name: PTP_INTERFACE
+          value: "p0"
+          # Config files
+        # Uncomment these lines to activate the PTP Monitoring feature
+        - name: PTP_MONITOR
+          value: "active"
+        - name: PTP_CONFIG_FILE
+          # Options are either "profile_default" config file or customized config file under /etc/firefly
+          value: profile_default
+        # Examples below for overwriting specific config parameters of linuxptp conf file (uncomment and edit to activate)
+        # This example can overwrite the value of priority1 in global section of the ptp conf file
+        - name: CONF_PTP_global_domainNumber
+          value: "10"
+        # This example can overwrite the value of announceReceiptTimeout in p0 port section of the ptp conf file
+        # Note, if the section p0 didn't exist in the conf file before, it will be added
+        #- name: CONF_PTP_p0_announceReceiptTimeout
+        #  value: "5"
+        - name: CONF_PTP_global_logAnnounceInterval
+          value: "0"
+        - name: CONF_PTP_global_hybrid_e2e
+          value: "0"
+        - name: CONF_PTP_global_announceReceiptTimeout
+          value: "3"
+        - name: CONF_PTP_global_logSyncInterval
+          value: "-3"
+        - name: CONF_PTP_global_logMinDelayReqInterval
+          value: "-3"

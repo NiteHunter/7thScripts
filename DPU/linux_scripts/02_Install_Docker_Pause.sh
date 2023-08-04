@@ -1,0 +1,1 @@
+ctr --namespace k8s.io image import docker_pause_3_2.tar

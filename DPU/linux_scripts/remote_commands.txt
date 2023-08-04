@@ -1,0 +1,14 @@
+chmod 777 set_real_time_clock.sh
+chmod 777 /root/set_ip_and_container.sh
+chmod 777 /root/create_container.sh
+chmod 777 /root/set_persistent_ip_to_p0.sh
+chmod 777 /etc/init.d/config_after_reboot.sh
+chmod 777 /etc/rc.local
+chmod 777 /root/firefly_monitor.sh                 
+
+sleep 2
+/root/set_real_time_clock.sh
+reboot
+sleep 2
+echo 1/2 DONE
+crontab -l

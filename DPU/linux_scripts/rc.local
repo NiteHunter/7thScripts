@@ -1,0 +1,3 @@
+#! /bin/bash
+/etc/init.d/config_after_reboot.sh
+exit 0

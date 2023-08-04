@@ -1,0 +1,17 @@
+<ConfigurationFile>
+	<Actor enabled="true">
+		<Property name="location" value="C:/7thsense/actor/Actor.exe" uitype="input" vartype="string" />
+	</Actor>
+	<Compere enabled="false">
+		<Property name="location" value="C:/7thsense/compere/Compere.exe" uitype="input" vartype="string" />
+	</Compere>
+	<Conjurer enabled="false">
+		<Property name="location" value="C:/7thsense/conjurer/Conjurer.exe" uitype="input" vartype="string" />
+	</Conjurer>
+	<Delta enabled="false">
+		<Property name="location" value="C:/Program Files/7thSense/Delta/Deltaserver.exe" uitype="input" vartype="string" />
+	</Delta>
+	<Juggler enabled="false">
+		<Property name="location" value="C:/7thsense/compere/Compere.exe" uitype="input" vartype="string" />
+	</Juggler>
+</ConfigurationFile>
