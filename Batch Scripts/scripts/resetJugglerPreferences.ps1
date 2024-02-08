@@ -1,18 +1,18 @@
 param([string]$string="Error") 
 
-Write-Host "This script can take a param of a Juggler hostname or screen role/position, and executes the reboot command by establishing an SSH session for each."
+Write-Host "This script can take a param of a Juggler hostname or screen role/position, and executes the update command by establishing an SSH session for each."
 Write-Host "Acceptable input formats are: "
-Write-Host "    JUGxx-xx        -this specifies the Juggler hostname to reboot."
-Write-Host "    A#              -this specifies the Bank A position of the Juggler to reboot. For instance: `"A1`" would reboot JUG02-01"
-Write-Host "    B#              -this specifies the Bank B position of the Juggler to reboot. For instance: `"B1`" would reboot JUG02-04"
-Write-Host "    AA              -this specifies all Bank A Jugglers to reboot."
-Write-Host "    BB              -this specifies all Bank B Jugglers to reboot."
-Write-Host "    All             -this specifies all Jugglers to reboot."
+Write-Host "    JUGxx-xx        -this specifies the Juggler hostname to update."
+Write-Host "    A#              -this specifies the Bank A position of the Juggler to update. For instance: `"A1`" would update JUG02-01"
+Write-Host "    B#              -this specifies the Bank B position of the Juggler to update. For instance: `"B1`" would update JUG02-04"
+Write-Host "    AA              -this specifies all Bank A Jugglers to update."
+Write-Host "    BB              -this specifies all Bank B Jugglers to update."
+Write-Host "    All             -this specifies all Jugglers to update."
 Write-Host ""
 Write-Host "This script can be run with a parameter during execution, or by using a prompt."
 
 if($string -eq "Error"){
-    $string = Read-Host "Specify which Juggler you wish to reboot based on the rules above"
+    $string = Read-Host "Specify which Juggler you wish to update based on the rules above"
 }
 
 # Grab the IP_Schedule for Juggler list
@@ -50,16 +50,20 @@ switch ($string) {
 # Setup
 # Path to Plink.exe - update this if necessary!
 $plinkPath = "C:\Batch Scripts\"
+$FileToRemove = "/7thApps/compere/bin/Preferences.pref"
 $sshPort = 22
 $sshUser = "root"
 $sshPassword = "7thJuggler"
 # Command to execute
-$remoteCommand = "reboot"
+$remoteCommand = "compere stop"
+$remoteCommand2 = "rm $FileToRemove"
 
 Set-Location $plinkPath
 
 # Command
 ForEach($i in $IPs){
     Write-Host "Sending command to $i"
-    Invoke-Expression -Command ".\plink.exe -ssh -P $sshPort -l $sshUser -pw $sshPassword $i $remoteCommand"
+    Invoke-Expression -Command ".\plink.exe -ssh -P $sshPort -l $sshUser -pw $sshPassword $i `"$remoteCommand`""
+    Start-Sleep -Seconds 3
+    Invoke-Expression -Command ".\plink.exe -ssh -P $sshPort -l $sshUser -pw $sshPassword $i `"$remoteCommand2`""
 }
