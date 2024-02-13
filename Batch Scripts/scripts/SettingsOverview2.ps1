@@ -1,26 +1,20 @@
-param([int]$param=0) 
+param([string]$param="ABCDEFGHI") 
 
-# Bitwise SUM isn't working!!!!! Grrr
-<# Per device:
-        To add ACT01s +256
-        To add ACT02s +128
-        To add CNJ01s +64
-        To add CNJ02s +23
-        To add CTL01s +16
-        To add DMS01s +8
-        To add JUG01s +4
-        To add JUG02s +2
-        To add JUG03s +1
-
-    # Big Dome all devices: 340
-    # Big Top all devices: 511
-    # Big Dome sans CNJs: 276
-    # Big Top sans CNJs & DMSs: 407
+<# Per device, include the character:
+        To add ACT01s: "A"
+        To add ACT02s: "B"
+        To add CNJ01s: "C" 
+        To add CNJ02s: "D"
+        To add CTL01s: "E"
+        To add DMS01s: "F"
+        To add JUG01s: "G"
+        To add JUG02s: "H"
+        To add JUG03s: "I"
 #>
 
 $currentDirectory = $PWD.Path
 
-IF($param -eq 0){  
+IF($param -notmatch "[A-I]"){  
     do {$IncludeACT01 = Read-Host "Enter 1 to include ACT01 servers, or 0 to exclude"} while ($IncludeACT01 -notin '0', '1')
     do {$IncludeACT02 = Read-Host "Enter 1 to include ACT02 servers, or 0 to exclude"} while ($IncludeACT02 -notin '0', '1')
     do {$IncludeCNJ01 = Read-Host "Enter 1 to include CNJ01 servers, or 0 to exclude"} while ($IncludeCNJ01 -notin '0', '1')
@@ -31,40 +25,27 @@ IF($param -eq 0){
     do {$IncludeJUG02 = Read-Host "Enter 1 to include JUG02 Jugglers, or 0 to exclude"} while ($IncludeJUG02 -notin '0', '1')
     do {$IncludeJUG03 = Read-Host "Enter 1 to include JUG03 Jugglers, or 0 to exclude"} while ($IncludeJUG03 -notin '0', '1')
 } Else {
-    # Convert Bitwise value to binary array 
-    $clientTypes = [Convert]::ToString($param,2).PadLeft(9,'0') 
-    $clientTypeArray = $clientTypes.ToCharArray() 
-
-    $IncludeACT01 = $clientTypeArray[8]
-    $IncludeACT02 = $clientTypeArray[7]
-    $IncludeCNJ01 = $clientTypeArray[6]
-    $IncludeCNJ02 = $clientTypeArray[5]
-    $IncludeCTL01 = $clientTypeArray[4]
-    $IncludeDMS01 = $clientTypeArray[3]
-    $IncludeJUG01 = $clientTypeArray[2]
-    $IncludeJUG02 = $clientTypeArray[1]
-    $IncludeJUG03 = $clientTypeArray[0]
-
-    $IncludeACT01 = [Convert]::ToInt32($IncludeACT01)
-    $IncludeACT02 = [Convert]::ToInt32($IncludeACT02)
-    $IncludeCNJ01 = [Convert]::ToInt32($IncludeCNJ01)
-    $IncludeCNJ02 = [Convert]::ToInt32($IncludeCNJ02)
-    $IncludeCTL01 = [Convert]::ToInt32($IncludeCTL01)
-    $IncludeDMS01 = [Convert]::ToInt32($IncludeDMS01)
-    $IncludeJUG01 = [Convert]::ToInt32($IncludeJUG01)
-    $IncludeJUG02 = [Convert]::ToInt32($IncludeJUG02)
-    $IncludeJUG03 = [Convert]::ToInt32($IncludeJUG03)
+    # Confirm which devices to include
+    If($param -match "A"){$IncludeACT01 = 1} Else {$IncludeACT01 = 0}
+    If($param -match "B"){$IncludeACT02 = 1} Else {$IncludeACT02 = 0}
+    If($param -match "C"){$IncludeCNJ01 = 1} Else {$IncludeCNJ01 = 0}
+    If($param -match "D"){$IncludeCNJ02 = 1} Else {$IncludeCNJ02 = 0}
+    If($param -match "E"){$IncludeCTL01 = 1} Else {$IncludeCTL01 = 0}
+    If($param -match "F"){$IncludeDMS01 = 1} Else {$IncludeDMS01 = 0}
+    If($param -match "G"){$IncludeJUG01 = 1} Else {$IncludeJUG01 = 0}
+    If($param -match "H"){$IncludeJUG02 = 1} Else {$IncludeJUG02 = 0}
+    If($param -match "I"){$IncludeJUG03 = 1} Else {$IncludeJUG03 = 0}
 }
 
-# Write-Host $IncludeACT01
-# Write-Host $IncludeACT02
-# Write-Host $IncludeCNJ01
-# Write-Host $IncludeCNJ02
-# Write-Host $IncludeCTL01
-# Write-Host $IncludeDMS01
-# Write-Host $IncludeJUG01
-# Write-Host $IncludeJUG02
-# Write-Host $IncludeJUG03
+Write-Host $IncludeACT01
+Write-Host $IncludeACT02
+Write-Host $IncludeCNJ01
+Write-Host $IncludeCNJ02
+Write-Host $IncludeCTL01
+Write-Host $IncludeDMS01
+Write-Host $IncludeJUG01
+Write-Host $IncludeJUG02
+Write-Host $IncludeJUG03
 
 # Retreive the IP_Schedule
 Set-Location "C:\Batch Scripts"
@@ -211,6 +192,28 @@ New-Item -ItemType Directory -Path "C:\Batch Scripts\temp"
 for ($i=0; $i -lt $clients.Length; $i++) {
     Write-Host "Gathering data from $($clients[$i])"
     $csvLine = @()
+    if($($clients[$i]) -like "CTL*") {
+        $xmlPath = "\\$($clients[$i])\7thSense Data\Additional Folders\Compere (Appdata)\Profiles\Server\preferences.pref"
+        # Write-Host $xmlPath
+        $xmlDoc = New-Object System.Xml.XmlDocument
+        $xmlDoc.Load($xmlPath)
+        # Iterate over each XML property and extract its value
+        foreach ($property in $xmlProperties) {
+            $targetNode = $xmlDoc.SelectSingleNode($property)
+            try{$propertyValue = $targetNode.GetAttribute('value')} catch {$propertyValue = ""}
+
+            # Add Property value to line array
+            $csvLine += $propertyValue
+        }
+        # Remove Commas from the array values
+        for ($j = 0; $j -lt $csvline.Length; $j++) {
+            $csvline[$j] = $csvline[$j] -replace ",", " "
+        } 
+        # Convert line array to individual array value and add to Lines array
+        $csvValue = $($clients[$i]) + " - Server," + $($csvLine -join ",")
+        $csvLine = @()
+        Add-Content -Value $csvValue -Path $output
+    }
     if($($clients[$i]) -notlike "JUG*") {
         $xmlPath = "\\$($clients[$i])\7thSense Data\Additional Folders\Compere (Appdata)\preferences.pref"
         # Write-Host $xmlPath
@@ -223,9 +226,14 @@ for ($i=0; $i -lt $clients.Length; $i++) {
 
             # Add Property value to line array
             $csvLine += $propertyValue
+        }
+        # Remove Commas from the array values
+        for ($j = 0; $j -lt $csvline.Length; $j++) {
+            $csvline[$j] = $csvline[$j] -replace ",", " "
         } 
         # Convert line array to individual array value and add to Lines array
         $csvValue = $($clients[$i]) + "," + $($csvLine -join ",")
+        $csvLine = @()
         Add-Content -Value $csvValue -Path $output
     }
     if($($clients[$i]) -like "JUG*") {
@@ -254,9 +262,14 @@ for ($i=0; $i -lt $clients.Length; $i++) {
 
             # Add Property value to line array
             $csvLine += $propertyValue
-        } 
+        }
+        # Remove Commas from the array values
+        for ($j = 0; $j -lt $csvline.Length; $j++) {
+            $csvline[$j] = $csvline[$j] -replace ",", " "
+        }          
         # Convert line array to individual array value and add to Lines array
         $csvValue = $($clients[$i]) + "," + $($csvLine -join ",")
+        $csvLine = @()
         Add-Content -Value $csvValue -Path $output
     }
 }
