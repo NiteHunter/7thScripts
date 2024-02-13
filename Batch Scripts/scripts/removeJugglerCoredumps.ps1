@@ -50,27 +50,18 @@ switch ($string) {
 # Setup
 # Path to Plink.exe - update this if necessary!
 $plinkPath = "C:\Batch Scripts\"
-$copyToPath = ":/7thApps/compere/bin"
+$FileToRemove = "/coredumps/*"
 $sshPort = 22
 $sshUser = "root"
 $sshPassword = "7thJuggler"
 # Command to execute
-$remoteCommand = "compere stop"
+$remoteCommand = "rm $FileToRemove"
+
 
 Set-Location $plinkPath
-
-Write-Host "Select compere-atom file"
-Add-Type -AssemblyName System.Windows.Forms
-$fileDialog = New-Object System.Windows.Forms.OpenFileDialog -Property @{InitialDirectory = [Environment]::GetFolderPath('Desktop')}
-$filePath = $fileDialog.ShowDialog()
-if($fileDialog.FileName.Length -gt 0) {
-    $sourceFile = $fileDialog.FileName
-}
-Write-Host "selected filepath: $sourceFile"
 
 # Command
 ForEach($i in $IPs){
     Write-Host "Sending command to $i"
     Invoke-Expression -Command ".\plink.exe -ssh -P $sshPort -l $sshUser -pw $sshPassword $i `"$remoteCommand`""
-    .\pscp.exe -scp -l $sshUser -pw $sshPassword $sourceFile $sshUser@$i$copyToPath
 }
