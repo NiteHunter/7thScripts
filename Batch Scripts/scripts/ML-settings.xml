@@ -1,2 +1,5 @@
 <?xml version="1.0"?>
 <MediaLogisticsSettings watchFolder="" assetVault="" remoteAgents="" assetVaultTags="" databaseNodeAddresses="" machineId="" machineName="" machineAddress="" toggleAssetLocationDistribution="true" useCouchDb="true" />
+
+<?xml version="1.0"?>
+<MediaLogisticsSettings watchFolder="" assetVault="" assetVaultTags="" databaseNodeAddresses="HSN01-01" databaseNodeAddressesFrom="HSN01-01" machineName="Hostname" machineAddress="Hostname"/>
