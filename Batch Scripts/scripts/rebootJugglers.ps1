@@ -60,6 +60,6 @@ Set-Location $plinkPath
 
 # Command
 ForEach($i in $IPs){
-    Write Host "Sending command to $i"
+    Write-Host "Sending command to $i"
     Invoke-Expression -Command ".\plink.exe -ssh -P $sshPort -l $sshUser -pw $sshPassword $i $remoteCommand"
 }

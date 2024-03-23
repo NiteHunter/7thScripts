@@ -2,16 +2,16 @@
 ##     Edit values here     ##
 ##############################
 
-$type = "folder"
-$file = "C:\7thSense\Installers\20-Jul-23_stagingBuild"
-$fileNew = ""
-$pathNew = "7thSense Data\Software & Drivers\Compere"
+$type = "file"
+$file = "C:\7thSense\source\7thScripts\Batch Scripts\scripts\setupML-settings_v1.4.2.ps1"
+$fileNew = "setupML-settings_v1.4.2.ps1"
+$pathNew = "7thSense Data\Additional Folders\Batch Scripts"
 $includeServersACT01 = 1
-$includeServersACT02 = 1
-$includeServersCNJ01 = 1
-$includeServersCNJ02 = 1
+$includeServersACT02 = 0
+$includeServersCNJ01 = 0
+$includeServersCNJ02 = 0
 $includeServersCTL01 = 1
-$includeServersDMS01 = 1
+$includeServersDMS01 = 0
 
 
 
@@ -21,7 +21,7 @@ $includeServersDMS01 = 1
 
 # ACT01-nn servers
 $startHost = 1
-$endHost = 50
+$endHost = 28  
 if ($includeServersACT01 -eq 1) {
     for ($i = $startHost; $i -le $endHost; $i++) {
         $index="{0:d2}" -f $i
