@@ -26,6 +26,7 @@ class Application(tk.Tk):
         self.SERVER_PORT = 5584         # Default server port number
         self.connection_status = False  # Variable to track connection status
         self.timelines = []
+        self.layers = []
 
         self.server_ip_label = tk.Label(self, text="Server IP Address:", bg=self.cget('bg'), pady=5)
         self.server_ip_label.grid(row=0, column=0, columnspan=2)
@@ -54,6 +55,9 @@ class Application(tk.Tk):
 
         self.create_widget_button = tk.Button(self, text="Create Widget", bg="#777777", command=self.create_widget)
         self.create_widget_button.grid(row=4, column=0, columnspan=4, sticky="s")
+
+        self.test_button = tk.Button(self, text="Test Button", bg="#777777", command=self.send_message_get_layers)
+        self.test_button.grid(row=5, column=0, columnspan=4, sticky="s")
 
     def toggle_connection(self):
         if not self.connection_status:
@@ -170,13 +174,66 @@ class Application(tk.Tk):
                 if 'TimelineStatusObject' in child:
                     name_value = child['TimelineStatusObject']['children'][0]['name']['value']
                     self.timelines.append(name_value)
-                    #self.timelines.append(child['TimelineStatusObject'])
             
             print("Timeline Array:")
             return self.timelines
         
         except Exception as e:
             print("Error parsing timelines:", e)
+            return None
+        
+    def send_message_get_layers(self):
+        message = '{"type": "request","cookie": 1,"caller-id": "CompereCommunicator","command": "get","path": "Timelines/Timeline 1","params": {}}'
+        payload = str(len(message)) + ":" + message + ","
+        try:
+            self.client_socket.sendall(payload.encode())
+            print("Message sent to server:", payload)
+
+            # Set a timeout for the socket
+            self.client_socket.settimeout(self.timeout_value)
+
+            # Receive and print the server response
+            response = b""
+            while True:
+                try:
+                    data = self.client_socket.recv(4096)
+                    if not data:
+                        break
+                    response += data
+                except socket.timeout:
+                    print("Socket timeout occurred. No more data to receive.")
+                    break
+                
+            print("Server response:", response.decode())
+
+            # self.close_connection()
+
+            self.parse_layers(response)
+            print(self.layers)
+
+        except Exception as e:
+            print("Error:", e)
+    
+    def parse_layers(self, response):
+        try:
+            # Split the response by commas to separate the netstring encapsulated JSONs
+            response_d = response.decode()
+            response_string = response_d.split('"caller-id":"CompereCommunicator","cookie":1},')
+            netstring = response_string[1]
+            json_string = self.trim_string(netstring)
+            # print(json_string)
+            json_converted_string = json.loads(json_string)
+            
+            for child in json_converted_string['Timeline']['children']:
+                if 'Timeline' in child:
+                    name_value = child['Timeline']['children'][0]['name']['value']
+                    self.layers.append(name_value)
+            
+            print("Layer Array:")
+            return self.layers
+        
+        except Exception as e:
+            print("Error parsing layers:", e)
             return None
 
     def trim_string(self, input_string):
@@ -203,7 +260,6 @@ class ColorPickerWidget:
         self.root.geometry("540x540")
         self.first_click = True
         self.timelines = timelines
-        self.layers = []
 
         # Variables to store the values of red, green, and blue
         self.hex_value = tk.StringVar()
@@ -309,61 +365,6 @@ class ColorPickerWidget:
     def start_listener(self):
         self.listener = Listener(on_click=self.get_mouse_click)
         self.listener.start()
-
-    def send_message_set_status_layers(self):
-        message = '{"type": "request","cookie": 1,"caller-id": "CompereCommunicator","command": "get-extended-status","path": "TimelineGroupObject","params": {}}'
-        payload = str(len(message)) + ":" + message + ","
-        try:
-            self.root.master.client_socket.sendall(payload.encode())
-            print("Message sent to server:", payload)
-
-            # Set a timeout for the socket
-            self.root.mater.client_socket.settimeout(self.root.master.timeout_value)
-
-            # Receive and print the server response
-            response = b""
-            while True:
-                try:
-                    data = self.root.master.client_socket.recv(4096)
-                    if not data:
-                        break
-                    response += data
-                except socket.timeout:
-                    print("Socket timeout occurred. No more data to receive.")
-                    break
-                
-            print("Server response:", response.decode())
-
-            # self.close_connection()
-
-            self.parse_layers(response)
-            print(self.layers)
-
-        except Exception as e:
-            print("Error:", e)
-    
-    def parse_layers(self, response):
-        try:
-            # Split the response by commas to separate the netstring encapsulated JSONs
-            response_d = response.decode()
-            response_string = response_d.split('"caller-id":"CompereCommunicator","cookie":1},')
-            netstring = response_string[1]
-            json_string = self.trim_string(netstring)
-            # print(json_string)
-            json_converted_string = json.loads(json_string)
-            
-            for child in json_converted_string['TimelineGroupObject']['children']:
-                if 'TimelineStatusObject' in child:
-                    name_value = child['TimelineStatusObject']['children'][0]['name']['value']
-                    self.layers.append(name_value)
-                    #self.timelines.append(child['TimelineStatusObject'])
-            
-            print("Timeline Array:")
-            return self.layers
-        
-        except Exception as e:
-            print("Error parsing timelines:", e)
-            return None
     
     
     def send_message_tolerance(self, event):

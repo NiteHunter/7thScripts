@@ -130,7 +130,8 @@ let command = {
 142:{"type": "request","cookie": 1,"caller-id": "CompereCommunicator","command": "get-extended-status","path": "TimelineGroupObject","params": {}},
 130:{"type": "request","cookie": 1,"caller-id": "CompereCommunicator","command": "get-extended-status","path": "","params": {depth=2}},
 126:{"type": "request","cookie": 1,"caller-id": "CompereCommunicator","command": "get","path": "Timelines","params": {"depth": 1}},
-138:{"type": "request","cookie": 1,"caller-id": "CompereCommunicator","command": "get","path": "Timelines","params": {"recurse": "false"}},
+159:{"type": "request","cookie": 1,"caller-id": "CompereCommunicator","command": "get","path": "Timelines/Timeline 1/TimelineLayer","params": {"recurse": "false"}},
+127:{"type": "request","cookie": 1,"caller-id": "CompereCommunicator","command": "get","path": "Timelines/Timeline 1","params": {}},
 144:{"type": "request", "caller-id": "nate", "cookie": 101, "command": "actor-stats-control", "params": {"show": "false", "forward-request-to": ""}},
 
 128:{"type": "request","cookie": 1,"caller-id": "CompereCommunicator","command": "get","path": "Timelines","params": {"depth": "1"}},
