@@ -1,0 +1,43 @@
+Tree Structure
+
+For each Timeline
+[data][Timelines][children][Timeline][children] --> [name][value]
+[data][Timelines][children][Timeline][children] --> [opacity][value]
+
+For each Layer
+[data][Timelines][children][Timeline][children][TimelineLayer][children] --> [name][value]
+[data][Timelines][children][Timeline][children][TimelineLayer][children] --> [opacity][value]
+
+For Each Resource (one of the below)
+[data][Timelines][children][Timeline][children][TimelineLayer][children][LayerResourceSet][children][TimelineMovieResource][children] --> [name][value]
+[data][Timelines][children][Timeline][children][TimelineLayer][children][LayerResourceSet][children][TimelineMovieResource][children] --> [opacity][value]
+[data][Timelines][children][Timeline][children][TimelineLayer][children][LayerResourceSet][children][TimelineMovieResource][children] --> [enableChromaKeying][value]
+[data][Timelines][children][Timeline][children][TimelineLayer][children][LayerResourceSet][children][TimelineMovieResource][children] --> [keyingTolerance][value]
+[data][Timelines][children][Timeline][children][TimelineLayer][children][LayerResourceSet][children][TimelineMovieResource][children] --> [redValue][value]
+[data][Timelines][children][Timeline][children][TimelineLayer][children][LayerResourceSet][children][TimelineMovieResource][children] --> [greenValue][value]
+[data][Timelines][children][Timeline][children][TimelineLayer][children][LayerResourceSet][children][TimelineMovieResource][children] --> [blueValue][value]
+[data][Timelines][children][Timeline][children][TimelineLayer][children][LayerResourceSet][children][TimelineMovieResource][children] --> [redRatio][value]
+[data][Timelines][children][Timeline][children][TimelineLayer][children][LayerResourceSet][children][TimelineMovieResource][children] --> [greenRatio][value]
+[data][Timelines][children][Timeline][children][TimelineLayer][children][LayerResourceSet][children][TimelineMovieResource][children] --> [blueRatio][value]
+
+[data][Timelines][children][Timeline][children][TimelineLayer][children][LayerResourceSet][children][TimelineImageResource][children] --> [name][value]
+[data][Timelines][children][Timeline][children][TimelineLayer][children][LayerResourceSet][children][TimelineImageResource][children] --> [opacity][value]
+[data][Timelines][children][Timeline][children][TimelineLayer][children][LayerResourceSet][children][TimelineImageResource][children] --> [enableChromaKeying][value]
+[data][Timelines][children][Timeline][children][TimelineLayer][children][LayerResourceSet][children][TimelineImageResource][children] --> [keyingTolerance][value]
+[data][Timelines][children][Timeline][children][TimelineLayer][children][LayerResourceSet][children][TimelineImageResource][children] --> [redValue][value]
+[data][Timelines][children][Timeline][children][TimelineLayer][children][LayerResourceSet][children][TimelineImageResource][children] --> [greenValue][value]
+[data][Timelines][children][Timeline][children][TimelineLayer][children][LayerResourceSet][children][TimelineImageResource][children] --> [blueValue][value]
+[data][Timelines][children][Timeline][children][TimelineLayer][children][LayerResourceSet][children][TimelineImageResource][children] --> [redRatio][value]
+[data][Timelines][children][Timeline][children][TimelineLayer][children][LayerResourceSet][children][TimelineImageResource][children] --> [greenRatio][value]
+[data][Timelines][children][Timeline][children][TimelineLayer][children][LayerResourceSet][children][TimelineImageResource][children] --> [blueRatio][value]
+
+[data][Timelines][children][Timeline][children][TimelineLayer][children][LayerResourceSet][children][TimelineCaptureResource][children] --> [name][value]
+[data][Timelines][children][Timeline][children][TimelineLayer][children][LayerResourceSet][children][TimelineCaptureResource][children] --> [opacity][value]
+[data][Timelines][children][Timeline][children][TimelineLayer][children][LayerResourceSet][children][TimelineCaptureResource][children] --> [enableChromaKeying][value]
+[data][Timelines][children][Timeline][children][TimelineLayer][children][LayerResourceSet][children][TimelineCaptureResource][children] --> [keyingTolerance][value]
+[data][Timelines][children][Timeline][children][TimelineLayer][children][LayerResourceSet][children][TimelineCaptureResource][children] --> [redValue][value]
+[data][Timelines][children][Timeline][children][TimelineLayer][children][LayerResourceSet][children][TimelineCaptureResource][children] --> [greenValue][value]
+[data][Timelines][children][Timeline][children][TimelineLayer][children][LayerResourceSet][children][TimelineCaptureResource][children] --> [blueValue][value]
+[data][Timelines][children][Timeline][children][TimelineLayer][children][LayerResourceSet][children][TimelineCaptureResource][children] --> [redRatio][value]
+[data][Timelines][children][Timeline][children][TimelineLayer][children][LayerResourceSet][children][TimelineCaptureResource][children] --> [greenRatio][value]
+[data][Timelines][children][Timeline][children][TimelineLayer][children][LayerResourceSet][children][TimelineCaptureResource][children] --> [blueRatio][value]
