@@ -6,17 +6,9 @@
 
 $adapters = @("Storage_01","Storage_02")
 $netDriver = ""
-$netDriver = Get-NetAdapter -Name $adapters[0] | Select DriverVersion
+$netDriver = Get-NetAdapter -Name $adapters[0] | Select-Object DriverVersion
 Write-Host $adapters
 Write-Host "Current Driver version: $($netDriver.DriverVersion)"
-
-If($netDriver.DriverVersion -ne "2.80.25134.0"){
-
-    Write-Host "Installing driver 2.80.25134.0"
-    Start-Process "C:\7thSense\Software & Drivers\Drivers\Network Adapter\Mellanox\ConnectX-6\MLNX_WinOF2-2_80_50000_All_x64.exe" -ArgumentList "/S /v/qn" -wait
-    Write-Host "Installed driver 2.80.25134.0"
-
-}
 
 Foreach($adapter in $adapters){
     Write-Host "Setting $($adapter) properties..."

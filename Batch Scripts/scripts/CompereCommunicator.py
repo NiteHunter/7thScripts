@@ -27,6 +27,7 @@ class Application(tk.Tk):
         self.connection_status = False  # Variable to track connection status
         self.timelines = []
         self.layers = []
+        self.layers.append("none")
 
         self.server_ip_label = tk.Label(self, text="Server IP Address:", bg=self.cget('bg'), pady=5)
         self.server_ip_label.grid(row=0, column=0, columnspan=2)
@@ -56,7 +57,7 @@ class Application(tk.Tk):
         self.create_widget_button = tk.Button(self, text="Create Widget", bg="#777777", command=self.create_widget)
         self.create_widget_button.grid(row=4, column=0, columnspan=4, sticky="s")
 
-        self.test_button = tk.Button(self, text="Test Button", bg="#777777", command=self.send_message_get_layers)
+        self.test_button = tk.Button(self, text="Test Button", bg="#777777", command=self.send_message_get_timeline_resources)
         self.test_button.grid(row=5, column=0, columnspan=4, sticky="s")
 
     def toggle_connection(self):
@@ -106,16 +107,16 @@ class Application(tk.Tk):
     def create_widget(self):
         selected_option = self.selected_option.get()
         if selected_option == "ColorPicker":
-            self.create_color_picker_widget(self.timelines)
+            self.create_color_picker_widget(self.timelines, self.layers)
         if selected_option == "TimelineFader":
             self.create_timeline_fader_widget()
     
-    def create_color_picker_widget(self, timelines):
+    def create_color_picker_widget(self, timelines, layers):
         if not self.connection_status:
             pass
         else:
             root = tk.Toplevel(self)
-            color_picker_widget = ColorPickerWidget(root, timelines)
+            color_picker_widget = ColorPickerWidget(root, timelines, layers)
     
     def create_timeline_fader_widget(self):
         if not self.connection_status:
@@ -159,31 +160,9 @@ class Application(tk.Tk):
 
         except Exception as e:
             print("Error:", e)
-    
-    def parse_timelines(self, response):
-        try:
-            # Split the response by commas to separate the netstring encapsulated JSONs
-            response_d = response.decode()
-            response_string = response_d.split('"caller-id":"CompereCommunicator","cookie":1},')
-            netstring = response_string[1]
-            json_string = self.trim_string(netstring)
-            # print(json_string)
-            json_converted_string = json.loads(json_string)
-            
-            for child in json_converted_string['TimelineGroupObject']['children']:
-                if 'TimelineStatusObject' in child:
-                    name_value = child['TimelineStatusObject']['children'][0]['name']['value']
-                    self.timelines.append(name_value)
-            
-            print("Timeline Array:")
-            return self.timelines
-        
-        except Exception as e:
-            print("Error parsing timelines:", e)
-            return None
-        
-    def send_message_get_layers(self):
-        message = '{"type": "request","cookie": 1,"caller-id": "CompereCommunicator","command": "get","path": "Timelines/Timeline 1","params": {}}'
+
+    def send_message_get_timeline_resources(self):
+        message = '{"type": "request","cookie": 1,"caller-id": "CompereCommunicator","command": "get","path": "Timelines","params": {"recurse": "true"}}'
         payload = str(len(message)) + ":" + message + ","
         try:
             self.client_socket.sendall(payload.encode())
@@ -208,13 +187,63 @@ class Application(tk.Tk):
 
             # self.close_connection()
 
-            self.parse_layers(response)
-            print(self.layers)
+            self.create_json_string(response)
+            self.parse_timelines2(self.json_converted_string)
+            self.parse_layers2(self.json_converted_string)
+            #self.parse_resources(response)
 
         except Exception as e:
             print("Error:", e)
     
-    def parse_layers(self, response):
+    def create_json_string(self, response):
+        try:
+            # Split the response by commas to separate the netstring encapsulated JSONs
+            response_d = response.decode()
+            response_string = response_d.split('"caller-id":"CompereCommunicator","cookie":1},')
+            netstring = response_string[1]
+            self.json_string = self.trim_string(netstring)
+            print(self.json_string)
+            self.json_converted_string = json.loads(self.json_string)
+
+        except Exception as e:
+            print("Error parsing layers:", e)
+            return None        
+    
+    def parse_timelines2(self, json_converted_string):
+        try:
+            self.timelines = []
+            
+            # Traverse the JSON structure correctly to access the layers
+            for child in json_converted_string['data']['Timelines']['children']:
+                if 'Timeline' in child:
+                    name_value = child['Timeline']['children'][0]['name']['value']
+                    self.timelines.append(name_value)
+            
+            print("Timeline Array:")
+            print(self.timelines)
+            
+            # # Create dict for timelines
+            # self.timelines_dict = {}
+
+            # # Iterate over each fruit in the fruits array
+            # for tl in self.timelines:
+            #     # Replace spaces with underscores and convert to lowercase for the key
+            #     key = tl.replace(' ', '_').lower() + '_layers'
+                
+            #     # Create the array and assign it to the key
+            #     self.timelines_dict[key] = []
+
+            # Print the dictionary to verify
+            # print("Timeline Dictionary")
+            # print(self.timelines_dict)
+
+            return None
+        
+        except Exception as e:
+            print("Error parsing layers:", e)
+            return None
+
+    def parse_timelines(self, response):
         try:
             # Split the response by commas to separate the netstring encapsulated JSONs
             response_d = response.decode()
@@ -224,9 +253,66 @@ class Application(tk.Tk):
             # print(json_string)
             json_converted_string = json.loads(json_string)
             
-            for child in json_converted_string['Timeline']['children']:
-                if 'Timeline' in child:
-                    name_value = child['Timeline']['children'][0]['name']['value']
+            for child in json_converted_string['TimelineGroupObject']['children']:
+                if 'TimelineStatusObject' in child:
+                    name_value = child['TimelineStatusObject']['children'][0]['name']['value']
+                    self.timelines.append(name_value)
+            
+            print("Timeline Array:")
+            return self.timelines
+        
+        except Exception as e:
+            print("Error parsing timelines:", e)
+            return None
+        
+    def send_message_get_layers(self, timeline):
+        message = '{"type": "request","cookie": 1,"caller-id": "CompereCommunicator","command": "get","path": "Timelines/' + str(timeline) + '","params": {}}'
+        payload = str(len(message)) + ":" + message + ","
+        try:
+            self.client_socket.sendall(payload.encode())
+            print("Message sent to server:", payload)
+
+            # Set a timeout for the socket
+            self.client_socket.settimeout(self.timeout_value)
+
+            # Receive and print the server response
+            response = b""
+            while True:
+                try:
+                    data = self.client_socket.recv(4096)
+                    if not data:
+                        break
+                    response += data
+                except socket.timeout:
+                    print("Socket timeout occurred. No more data to receive.")
+                    break
+                
+            print("Server response:", response.decode())
+
+            # self.close_connection()
+
+            self.parse_layers(response, timeline)
+            print(self.layers)
+
+        except Exception as e:
+            print("Error:", e)
+    
+    def parse_layers(self, response, timeline):
+        try:
+            # Split the response by commas to separate the netstring encapsulated JSONs
+            response_d = response.decode()
+            response_string = response_d.split('"caller-id":"CompereCommunicator","cookie":1},')
+            netstring = response_string[1]
+            json_string = self.trim_string(netstring)
+            print(json_string)
+            json_converted_string = json.loads(json_string)
+            self.layers = []
+            self.layers.append("none")
+            
+            # Traverse the JSON structure correctly to access the layers
+            for child in json_converted_string['data']['Timeline']['children']:
+                if 'TimelineLayer' in child:
+                    name_value = child['TimelineLayer']['children'][0]['name']['value']
                     self.layers.append(name_value)
             
             print("Layer Array:")
@@ -235,6 +321,32 @@ class Application(tk.Tk):
         except Exception as e:
             print("Error parsing layers:", e)
             return None
+    
+    def parse_layers2(self, json_converted_string):
+        try:
+            #self.timelines_dict = {}
+
+            # Iterate over each timeline in the JSON structure
+            for index, timeline in enumerate(self.timelines):
+                #timeline_layers = []  # Initialize an empty list to store layers for each timeline
+                print(index)
+                print(timeline)
+
+                # Iterate over each child in the timeline
+                for child in json_converted_string['data']['Timelines']['children']['Timeline']['children']:
+                    if str(child[0]['name']['value']) == timeline:
+                        name_value = child['TimelineLayer']['children'][0]['name']['value']
+                        print(name_value)
+                        #timeline_layers.append(name_value)
+
+                # Store the layers list in the dictionary with the index as the key
+                #self.timelines_dict[index] = timeline_layers
+
+            #print("Timeline Dictionary")
+            #print(self.timelines_dict)
+
+        except Exception as e:
+            print("Error parsing layers:", e)
 
     def trim_string(self, input_string):
         # Find the position of the first ":" and the last ","
@@ -249,10 +361,10 @@ class Application(tk.Tk):
         else:
             # Return original string if ":" or "," not found
             return input_string
-
+    
         
 class ColorPickerWidget:
-    def __init__(self, root, timelines):
+    def __init__(self, root, timelines, layers):
         # Build Widget
         self.root = root
         self.root.title("7thChromaSender")
@@ -283,18 +395,23 @@ class ColorPickerWidget:
         self.timeline_label.grid(row=2, column=0, sticky="e", padx=(10, 0))
         self.selected_timeline = tk.StringVar(root)
         self.selected_timeline.set(self.timelines[0])
+        # Register a callback for the selected_timeline variable
+        self.selected_timeline.trace_add('write', self.on_timeline_change)
         self.timeline_menu = tk.OptionMenu(self.root, self.selected_timeline, *self.timelines)
         self.timeline_menu.config(bg="#777777", width=58, border=2, highlightbackground="black")
-        #self.timeline_entry = tk.Entry(self.root, width=58)
-        #self.timeline_entry.insert(0, "Timeline 1")  # Set default value
+        #self.timeline_menu.bind("<Button-1>", self.on_select)
         self.timeline_menu.grid(row=2, column=1, sticky="w", padx=(0, 10))
         
         # Entry field for layer number
         self.layer_label = tk.Label(self.root, text="Layer Name:", font=("Arial", 16), bg=self.root.cget('bg'))
         self.layer_label.grid(row=3, column=0, sticky="e", padx=(10, 0))
-        self.layer_entry = tk.Entry(self.root, width=58)
-        self.layer_entry.insert(0, "Layer 1")  # Set default value
-        self.layer_entry.grid(row=3, column=1, sticky="w", padx=(0, 10))
+        self.root.master.send_message_get_layers(self.selected_timeline)
+        self.layers = self.root.master.layers
+        self.selected_layer = tk.StringVar(root)
+        self.selected_layer.set(self.layers[0])
+        self.layer_menu = tk.OptionMenu(self.root, self.selected_layer, *self.layers)
+        self.layer_menu.config(bg="#777777", width=58, border=2, highlightbackground="black")
+        self.layer_menu.grid(row=3, column=1, sticky="w", padx=(0, 10))
         
         # Entry field for resource name
         self.resource_label = tk.Label(self.root, text="Resource Name:", font=("Arial", 16), bg=self.root.cget('bg'))
@@ -337,6 +454,12 @@ class ColorPickerWidget:
         self.listener = None
         self.listener_running = False  # Initialize listener_running attribute
 
+    def on_timeline_change(self, *args):
+        selected_item = self.selected_timeline.get()
+        print("Selected timeline:", selected_item)
+        self.root.master.send_message_get_layers(self.selected_timeline)
+        # Perform actions based on the selected item
+    
     def pick_color_from_screen(self):
         if not self.listener_running:  # Check if the listener is already running
             self.start_listener()
